@@ -6,11 +6,10 @@ const initialState = {
 const reminders = (state = initialState, action) => {
     switch(action.type) {
         case 'ADD_REMINDER':
-            return [
-                ...state, {
-                    remindersList: action.addNewReminder
-                }
-            ]
+           return {
+               ...state,
+               remindersList: state.remindersList.concat(action.addNewReminder)
+           }
         case 'ADD_ALL_REMINDERS': 
             return Object.assign({}, state, {
                 remindersList: action.addReminders

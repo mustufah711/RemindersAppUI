@@ -26,6 +26,7 @@ class RemindersScreen extends Component {
 
     renderWelcomeMsg = (currentTime = new Date()) => {
         const currentHour = currentTime.getHours();
+        console.log(currentHour)
         const splitAfternoon = 12; // 24hr time to split the afternoon
         const splitEvening = 17; // 24hr time to split the evening
       
@@ -35,15 +36,16 @@ class RemindersScreen extends Component {
               greeting: 'Good Afternoon!'
           });
         } else if (currentHour >= splitEvening) {
-          // Between 5PM and Midnight
-          this.setState({
-            greeting: 'Good Evening!'
-        });
+            // Between 5PM and Midnight
+            this.setState({
+                greeting: 'Good Evening!'
+            });
+        } else {
+            // Between dawn and noon
+            this.setState({
+                greeting: 'Good Morning!'
+            });
         }
-        // Between dawn and noon
-        this.setState({
-            greeting: 'Good Morning!'
-        });
     }
 
     async getReminders() {
@@ -59,7 +61,7 @@ class RemindersScreen extends Component {
                         noTasks: true,
                         dataLength: 0
                     })
-                    this.props.dispatch({ type: 'ADD_ALL_REMINDERS', addReminders: this.state.dataSource })
+                    this.props.dispatch({ type: 'ADD_ALL_REMINDERS', addReminders: [] })
                 } else {
                     this.setState({
                         dataLength: this.state.dataSource.length
@@ -120,10 +122,10 @@ class RemindersScreen extends Component {
                     onPress={this.openModal.bind(this)}
                 />
                 <Overlay 
-                    isVisible={this.state.isVisible}
+                    isVisible={this.props.isVisible}
                     width="75%"
                     height="60%"
-                    onBackdropPress={() => this.setState({ isVisible: false })}
+                    onBackdropPress={() => this.props.dispatch({ type: 'IS_VISIBLE', viewModal: false })}
                     style={{ borderRadius: 10 }}
                 >  
                     <CreateReminder></CreateReminder>
@@ -140,7 +142,7 @@ class RemindersScreen extends Component {
                             { this.state.greeting }
                         </Title>
                         <Title style={{  color: 'white' }}>
-                            You have { this.state.dataLength } Reminder(s)!
+                            You have { this.props.remindersList.length } Reminder(s)!
                         </Title>
                     </Body>
                 </Header>
@@ -158,7 +160,7 @@ class RemindersScreen extends Component {
                     onPress={ this.openModal.bind(this) }
                 />
                 <Overlay 
-                    isVisible={this.props.isVisible }
+                    isVisible={this.props.isVisible } //{ this.state.isVisible }
                     width="75%"
                     height="60%"
                     onBackdropPress={() => this.props.dispatch({ type: 'IS_VISIBLE', viewModal: false })}//this.setState({ isVisible: false })}

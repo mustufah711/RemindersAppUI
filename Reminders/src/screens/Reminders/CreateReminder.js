@@ -24,20 +24,19 @@ class CreateReminder extends Component {
     submitTask() {
         const taskData = {
             task: this.state.task,
-            priority: this.state.priority
+            priority: this.state.priority,
+            status: 'Not Completed'
         }
-        /*
         axios.post('http://localhost:4567/tasks', { 
             task: this.state.task,
             priority: this.state.priority
          })
             .then(res => {
                 if(res.data.responseStatus === 'Added Successfully') {
-                    
+                    this.props.dispatch({ type: 'ADD_REMINDER', addNewReminder: taskData })
+                    this.props.dispatch({ type: 'IS_VISIBLE', viewModal: false })
                 }
         })
-        */
-       this.props.dispatch({ type: 'IS_VISIBLE', viewModal: false })
     }
 
     render() {
