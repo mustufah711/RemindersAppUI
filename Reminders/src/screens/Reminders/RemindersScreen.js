@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View, TouchableHighlight,
-ActivityIndicator, FlatList, Button, TextInput, RefreshControl } from 'react-native';
+ActivityIndicator, FlatList, TextInput, RefreshControl } from 'react-native';
 import axios from 'axios';
-import { Header, Body, Title, DatePicker } from 'native-base'
+import { Header, Body, Title, Button, Icon } from 'native-base'
 import ActionButton from 'react-native-action-button'
 import CardView from './CardView';
 import { SwipeListView } from 'react-native-swipe-list-view';
@@ -49,7 +49,8 @@ class RemindersScreen extends Component {
     }
 
     async getReminders() {
-        return await fetch('http://localhost:4567/tasks')
+        this.renderWelcomeMsg();
+        return await fetch('http://192.168.1.219:4567/tasks')
             .then((response) => response.json())
             .then((responseJson) => {
             this.setState({
@@ -59,13 +60,10 @@ class RemindersScreen extends Component {
                 if (this.state.dataSource === undefined) {
                     this.setState({
                         noTasks: true,
-                        dataLength: 0
                     })
                     this.props.dispatch({ type: 'ADD_ALL_REMINDERS', addReminders: [] })
                 } else {
-                    this.setState({
-                        dataLength: this.state.dataSource.length
-                    })
+            
                     this.props.dispatch({ type: 'ADD_ALL_REMINDERS', addReminders: this.state.dataSource })
                 }
             });
@@ -75,18 +73,11 @@ class RemindersScreen extends Component {
         });
     }
 
-    componentDidMount() {
-        this.renderWelcomeMsg();
+    async componentDidMount() {
         this.getReminders();
-        
     }
 
     openModal() {
-        /*
-        this.setState({
-            isVisible: true
-        })
-        */
        this.props.dispatch({ type: 'IS_VISIBLE', viewModal: true })
     }
 
@@ -96,40 +87,6 @@ class RemindersScreen extends Component {
             return(
             <View style={{flex: 1, padding: 20}}>
                 <ActivityIndicator/>
-            </View>
-            )
-        }
-
-        if(this.state.noTasks) {
-            return(
-            <View style={{flex: 1}}>
-                <Header style={{ backgroundColor: '#523284', height: 90 }}>
-                    <Body >
-                        <Title style={{  color: 'white' }}>
-                            { this.state.greeting }
-                        </Title>
-                        <Title style={{  color: 'white' }}>
-                            You have 0 Reminders!
-                        </Title>
-                    </Body>
-                </Header>
-                <Text style={{ justifyContent: "center", alignItems: "center" }}>No Reminders Available</Text>
-                <ActionButton
-                    //buttonColor='#ffb96e'
-                    buttonColor='#523284'
-                    buttonTextStyle={{ color: 'white' }}
-                    position='right'
-                    onPress={this.openModal.bind(this)}
-                />
-                <Overlay 
-                    isVisible={this.props.isVisible}
-                    width="75%"
-                    height="60%"
-                    onBackdropPress={() => this.props.dispatch({ type: 'IS_VISIBLE', viewModal: false })}
-                    style={{ borderRadius: 10 }}
-                >  
-                    <CreateReminder></CreateReminder>
-                </Overlay>
             </View>
             )
         }
@@ -146,10 +103,22 @@ class RemindersScreen extends Component {
                         </Title>
                     </Body>
                 </Header>
-                <FlatList
-                    data={ this.props.remindersList }
+                <SwipeListView
+                    data={this.props.remindersList}
                     renderItem={({item}) => 
                         <CardView task={item.task} status={item.status}/>}
+                        renderHiddenItem={ (data, rowMap) => (
+                        <View style={styles.rowBack}>
+                            <Button style={{backgroundColor: 'green'}} title="Edit">
+                            <Icon name='ios-keypad'></Icon>
+                            </Button>
+                            <Button style={{backgroundColor: 'red'}} title="Delete">
+                                <Icon name='trash'></Icon>
+                            </Button>
+                        </View>
+                    )}
+                    leftOpenValue={75}
+                    rightOpenValue={-85}
                     keyExtractor={({id}, index) => index.toString()}
                 />
             
@@ -195,6 +164,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         paddingLeft: 15,
+        paddingRight: 15,
     }
 });
 
@@ -213,4 +183,10 @@ const styles = StyleSheet.create({
                 rightOpenValue={-75}
                 keyExtractor={({id}, index) => index.toString()}
             />
+            <FlatList
+                    data={ this.props.remindersList }
+                    renderItem={({item}) => 
+                        <CardView task={item.task} status={item.status}/>}
+                    keyExtractor={({id}, index) => index.toString()}
+                />
             */}

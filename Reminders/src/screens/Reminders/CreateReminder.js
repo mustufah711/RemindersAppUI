@@ -27,7 +27,7 @@ class CreateReminder extends Component {
             priority: this.state.priority,
             status: 'Not Completed'
         }
-        axios.post('http://localhost:4567/tasks', { 
+        axios.post('http://192.168.1.219:4567/tasks', { 
             task: this.state.task,
             priority: this.state.priority
          })
