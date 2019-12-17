@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import { StyleSheet, Text, View, TouchableHighlight,
 ActivityIndicator, FlatList, TextInput, RefreshControl } from 'react-native';
 import axios from 'axios';
-import { Header, Body, Title, Button, Icon } from 'native-base'
+import { Body, Title, Button, Icon } from 'native-base'
 import ActionButton from 'react-native-action-button'
 import CardView from './CardView';
 import { SwipeListView } from 'react-native-swipe-list-view';
-import { Overlay } from 'react-native-elements';
+import { Header, Overlay } from 'react-native-elements';
 import CreateReminder from './CreateReminder';
 import { connect } from 'react-redux';
 
@@ -93,15 +93,18 @@ class RemindersScreen extends Component {
 
         return(
             <View style={{flex: 1, backgroundColor: '#F2F6FF'}}>
-                <Header style={{ backgroundColor: '#523284', height: 90 }}>
-                    <Body >
-                        <Title style={{  color: 'white' }}>
-                            { this.state.greeting }
-                        </Title>
-                        <Title style={{  color: 'white' }}>
-                            You have { this.props.remindersList.length } Reminder(s)!
-                        </Title>
-                    </Body>
+                <Header
+                    centerComponent={
+                        <View>
+                            <Text style={{ color: 'white'}}>{ this.state.greeting }</Text>
+                            <Text style={{ color: 'white'}}>You have { this.props.remindersList.length } Reminder(s)!</Text>
+                        </View>
+                    }
+                    containerStyle={{
+                        backgroundColor: '#523284',
+                    }}
+                >
+
                 </Header>
                 <SwipeListView
                     data={this.props.remindersList}
@@ -189,4 +192,14 @@ const styles = StyleSheet.create({
                         <CardView task={item.task} status={item.status}/>}
                     keyExtractor={({id}, index) => index.toString()}
                 />
+            <Header style={{ backgroundColor: '#523284', height: 90 }}>
+                    <Body >
+                        <Title style={{  color: 'white' }}>
+                            { this.state.greeting }
+                        </Title>
+                        <Title style={{  color: 'white' }}>
+                            You have { this.props.remindersList.length } Reminder(s)!
+                        </Title>
+                    </Body>
+                </Header>
             */}

@@ -29,7 +29,8 @@ class CreateReminder extends Component {
         }
         axios.post('http://192.168.1.219:4567/tasks', { 
             task: this.state.task,
-            priority: this.state.priority
+            priority: this.state.priority,
+            status: 'Not Completed'
          })
             .then(res => {
                 if(res.data.responseStatus === 'Added Successfully') {
