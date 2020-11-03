@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Reminders",
+    "name": "Reminder Rocket",
     "slug": "Reminders",
     "privacy": "public",
     "sdkVersion": "35.0.0",
@@ -13,9 +13,9 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/purple_rocket.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#523284"
     },
     "updates": {
       "fallbackToCacheTimeout": 0

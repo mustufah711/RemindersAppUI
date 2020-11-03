@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, TouchableHighlight,
-ActivityIndicator, FlatList, Button, TextInput, Alert } from 'react-native';
+import { StyleSheet, Text, View, TextInput } from 'react-native';
 import axios from 'axios';
-import { Overlay } from 'react-native-elements';
-import { Header, Body, Title, DatePicker } from 'native-base'
+import { DatePicker, Button } from 'native-base'
 import { connect } from 'react-redux'
 
 
@@ -15,7 +13,7 @@ class CreateReminder extends Component {
             priority: '',
             chosenDate: new Date(),
             uniqueValue: 1
-        }
+        };
         this.setDate = this.setDate.bind(this);
     }
     setDate(newDate) {
@@ -23,35 +21,41 @@ class CreateReminder extends Component {
     }
     submitTask() {
         const taskData = {
+            id: Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15),
             task: this.state.task,
             priority: this.state.priority,
-            status: 'Not Completed'
-        }
-        axios.post('http://192.168.1.219:4567/tasks', { 
+            status: 'Not Completed',
+        };
+        axios.post('http://192.168.1.51:4567/tasks', {
+            id: Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15),
             task: this.state.task,
             priority: this.state.priority,
             status: 'Not Completed'
          })
             .then(res => {
                 if(res.data.responseStatus === 'Added Successfully') {
-                    this.props.dispatch({ type: 'ADD_REMINDER', addNewReminder: taskData })
-                    this.props.dispatch({ type: 'IS_VISIBLE', viewModal: false })
+                    this.props.dispatch({ type: 'ADD_REMINDER', addNewReminder: taskData });
+                    this.props.dispatch({ type: 'IS_VISIBLE', viewModal: false });
                 }
         })
     }
 
     render() {
         return(
-            <View>
-                <Text>Hello Child: { this.props.remindersList.length}</Text>
+            <View >
+                <Text style={{fontSize: 18, marginBottom: 15 }}>Reminder</Text>
                 <TextInput
                     onChangeText={(val)=> this.setState({ task: val })}
-                    style={styles.input} placeholder="Task" textAlign={'center'} underlineColorAndroid={'transparent'}
-                />
+                    style={ styles.textInput } placeholder="Reminder Name" underlineColorAndroid={'transparent'}
+                >{ this.props.reminder }</TextInput>
+                <Text style={{fontSize: 18, marginBottom: 15 }}>Priority</Text>
                 <TextInput
                     onChangeText={(val)=> this.setState({ priority: val })}
-                    style={styles.input} placeholder="Priority" textAlign={'center'} underlineColorAndroid={'transparent'}
+                    style={ styles.textInput } placeholder="Priority" underlineColorAndroid={'transparent'}
                 />
+                <Text style={{fontSize: 18, marginBottom: 15 }}>
+                    Select Date
+                </Text>
                 <DatePicker
                     defaultDate={new Date()}
                     minimumDate={new Date()}
@@ -60,20 +64,16 @@ class CreateReminder extends Component {
                     modalTransparent={false}
                     animationType={"fade"}
                     androidMode={"default"}
-                    placeHolderText="Select date"
+                    placeHolderText="Reminder Date"
                     textStyle={{ color: "green" }}
                     placeHolderTextStyle={{ color: "#d3d3d3" }}
                     onDateChange={this.setDate}
                     disabled={false}
                 />
-                <Text>
-                    Date: {this.state.chosenDate.toString().substr(4, 12)}
-                </Text>
                 <Button 
-                    title='Submit'
                     style={styles.button}
                     onPress={this.submitTask.bind(this)}
-                ></Button>
+                ><Text style={{ color: 'white' }}>Submit</Text></Button>
             </View>
         )
     }
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
       width: null,
       height: null
     },
-    input: {
+    /*input: {
       height: 50,
       width: 300,
       marginTop: 10,
@@ -106,15 +106,22 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       backgroundColor: '#ffffff',
       borderRadius: 25
+    },*/
+    textInput: {
+        fontSize: 15,
+        marginBottom: 15,
+        borderColor: 'gray',
+        borderWidth: 1,
+        padding: 11
     },
     button: {
       height: 50,
-      backgroundColor: 'red',
-      //alignSelf: 'stretch',
+      backgroundColor: '#523284',
       width: 300,
       marginTop: 20,
       justifyContent: 'center',
-      borderRadius: 25
+      borderRadius: 25,
+      color: 'white'
     },
     buttonText: {
       fontSize: 22,

@@ -9,7 +9,8 @@ import { SwipeListView } from 'react-native-swipe-list-view';
 import { Header, Overlay } from 'react-native-elements';
 import CreateReminder from './CreateReminder';
 import { connect } from 'react-redux';
-
+import { Notifications } from 'expo';
+import * as Permissions from 'expo-permissions';
 
 class RemindersScreen extends Component {
     constructor(props) {
@@ -17,10 +18,7 @@ class RemindersScreen extends Component {
         this.state = { 
             isLoading: true,
             isVisible: false,
-            task: '',
-            priority: '',
-            greeting: '',
-            chosenDate: new Date()
+            greeting: ''
         }
     }
 
@@ -46,11 +44,50 @@ class RemindersScreen extends Component {
                 greeting: 'Good Morning!'
             });
         }
-    }
+    };
+
+    registerForPushNotificationsAsync = async () => {
+        const { status: existingStatus } = await Permissions.getAsync(
+            Permissions.NOTIFICATIONS
+        );
+        let finalStatus = existingStatus;
+        // only ask if permissions have not already been determined, because
+        // iOS won't necessarily prompt the user a second time.
+        if (existingStatus !== 'granted') {
+            // Android remote notification permissions are granted during the app
+            // install, so this will only ask on iOS
+            const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+            finalStatus = status;
+        }
+        // Stop here if the user did not grant permissions
+        if (finalStatus !== 'granted') {
+            return;
+        }
+        // Get the token that uniquely identifies this device
+        let token = await Notifications.getExpoPushTokenAsync();
+
+        /*// POST the token to your backend server from where you can retrieve it to send push notifications.
+        return fetch(PUSH_ENDPOINT, {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                token: {
+                    value: token,
+                },
+                user: {
+                    username: 'Brent',
+                },
+            }),
+        });*/
+    };
 
     async getReminders() {
+        await this.registerForPushNotificationsAsync()
         this.renderWelcomeMsg();
-        return await fetch('http://192.168.1.219:4567/tasks')
+        return await fetch('http://192.168.1.51:4567/tasks')
             .then((response) => response.json())
             .then((responseJson) => {
             this.setState({
@@ -60,7 +97,7 @@ class RemindersScreen extends Component {
                 if (this.state.dataSource === undefined) {
                     this.setState({
                         noTasks: true,
-                    })
+                    });
                     this.props.dispatch({ type: 'ADD_ALL_REMINDERS', addReminders: [] })
                 } else {
             
@@ -79,6 +116,24 @@ class RemindersScreen extends Component {
 
     openModal() {
        this.props.dispatch({ type: 'IS_VISIBLE', viewModal: true })
+    }
+
+    deleteTask(task) {
+        console.log(task.item);
+        try {
+            axios.delete('http://192.168.1.51:4567/deleteTask', {
+                data: {
+                    id: task.item.id,
+                }
+            }) .then(res => {
+                const index = this.props.remindersList.indexOf(task.item) + 1;
+                if(res.data.responseStatus === 'Deleted Task') {
+                    this.props.dispatch({ type: 'DELETE_REMINDER', deleteReminder: index })
+                }
+            })
+        } catch(err) {
+            console.log(err);
+        }
     }
 
     render() {
@@ -112,10 +167,10 @@ class RemindersScreen extends Component {
                         <CardView task={item.task} status={item.status}/>}
                         renderHiddenItem={ (data, rowMap) => (
                         <View style={styles.rowBack}>
-                            <Button style={{backgroundColor: 'green'}} title="Edit">
-                            <Icon name='ios-keypad'></Icon>
+                            <Button style={{backgroundColor: 'green'}} title="Edit" onPress={() => this.test(data)}>
+                                <Icon name='ios-keypad'></Icon>
                             </Button>
-                            <Button style={{backgroundColor: 'red'}} title="Delete">
+                            <Button style={{backgroundColor: 'red'}} title="Delete" onPress={() => this.deleteTask(data)}>
                                 <Icon name='trash'></Icon>
                             </Button>
                         </View>
@@ -133,12 +188,15 @@ class RemindersScreen extends Component {
                 />
                 <Overlay 
                     isVisible={this.props.isVisible } //{ this.state.isVisible }
-                    width="75%"
-                    height="60%"
+                    width="auto"
+                    height="auto"
                     onBackdropPress={() => this.props.dispatch({ type: 'IS_VISIBLE', viewModal: false })}//this.setState({ isVisible: false })}
-                    style={{ borderRadius: 10 }}
+                    style={{ borderRadius: 25 }}
                 >  
-                    <CreateReminder></CreateReminder>
+                    <CreateReminder
+                        reminder=''
+                        priority=''
+                    />
                 </Overlay>
             </View>
         );
@@ -150,7 +208,7 @@ class RemindersScreen extends Component {
 const mapStateToProps = state => ({
     remindersList: state.reminders.remindersList,
     isVisible: state.reminders.isVisible
-})
+});
 
 export default connect(mapStateToProps) (RemindersScreen)
 
